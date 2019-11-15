@@ -7,22 +7,22 @@
 </div>
   <!-- 卡片内容 -->
   <!--表单 -->
-  <el-form style="margin-top:10px" :model="loginForm" :rules='loginRules'>
+  <el-form ref="myForm" style="margin-top:10px" :model="loginForm" :rules='loginRules'>
     <!-- 一个表单域就有一个el-form-item -->
     <el-form-item prop='mobile'>
       <!-- 手机号 -->
-      <el-input v-model="loginForm.mobile"></el-input>
+      <el-input v-model="loginForm.mobile" placeholder='请输入手机号'></el-input>
     </el-form-item>
     <!-- 短信验证 -->
     <el-form-item prop='code'>
-      <el-input style="width:250px" v-model="loginForm.code" ></el-input>
+      <el-input style="width:250px" v-model="loginForm.code" placeholder="请输入验证码" ></el-input>
        <el-button style="float:right" plain>发送验证码</el-button>
     </el-form-item>
       <el-form-item prop='code'>
         <el-checkbox v-model="loginForm.check">我已阅读并同意次条款内容</el-checkbox>
       </el-form-item>
        <el-form-item>
-          <el-button style="width:100%  " type="primary">登录</el-button>
+          <el-button @click="login" style="width:100%  " type="primary">登录</el-button>
       </el-form-item>
 
   </el-form>
@@ -35,13 +35,33 @@
 <script>
 export default {
   data () {
+    let validator = function (rule, value, callBack) {
+      value ? callBack() : callBack(new Error('您必须同意无条件被我们蒙骗'))
+    }
     return {
       loginForm: {
         mobile: '',
         code: '',
         check: ''
       },
-      loginRules: {}
+      loginRules: {
+        mobile: [{ required: true, message: '请输入您的手机号' },
+          { pattern: /^1[3456789]\d{9}$/, message: '请输入合法的手机号' }],
+        code: [{ required: true, message: '请输入您的验证码' },
+          { pattern: /^\d{6}$/, message: '验证码为6位数字' }],
+        agree: [{ validator }]
+      }
+    }
+  },
+  methods: {
+    login () {
+      // 校验整个表单的规则
+      // validate 是一个方法 => 方法中传入的一个函数 两个校验参数  是否校验成功/未校验成功的字段
+      this.$refs.myForm.validate(function (isOK) {
+        if (isOK) {
+          console.log('校验成功')
+        }
+      })
     }
   }
 
@@ -66,6 +86,7 @@ align-items: center;
       height: 45px;
     }
   }
+
 }
 
 }
